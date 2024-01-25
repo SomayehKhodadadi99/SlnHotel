@@ -38,9 +38,9 @@ namespace Hotel.Controllers
                 return StatusCode(500, "Intrnall server Error.plessa try agin Later.");
             }
         }
-
+        
         [Authorize]
-        [HttpGet("{Id:int}", Name = "GetHotel")]
+        [HttpGet("{Id}", Name = "GetHotel")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetHotel(int Id)

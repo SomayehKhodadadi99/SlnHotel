@@ -6,25 +6,26 @@ using Hotel.Middleware;
 using Hotel.Repository;
 using Hotel.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+var configuration = builder.Configuration;
 
 builder.Services.AddDbContext<DataBaseContext>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
 });
 
+// For Identity
 
-builder.Services.AddAuthentication();
-
-
-
-//builder.Services.ConfigureIdentity();
 
 //نام لاگین پرووایدر  HotelListingApi
 builder.Services.AddIdentityCore<ApiUser>()
@@ -33,13 +34,35 @@ builder.Services.AddIdentityCore<ApiUser>()
     .AddEntityFrameworkStores<DataBaseContext>()
     .AddDefaultTokenProviders();
 
+//builder.Services.ConfigureJWT();
 
 builder.Services.AddAutoMapper(typeof(Mapperinitilizaer));
 
 builder.Services.AddCors(o => o.AddPolicy("AllowAny", builder =>
               builder.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader()));
+.AllowAnyHeader()));
+
+
+// Adding Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = configuration["JwtSettings:Audience"],
+        ValidIssuer = configuration["JwtSettings:Issuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]))
+    };
+});
 
 
 //اون رابطه هایی که میوفتن تو loop را دیسریالایز می کنه
@@ -62,8 +85,6 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options => {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "Hotel Listing API", Version = "v1" });
-
-
     options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
     {
         Description = @"JWT Authorization header using the Bearer scheme. 
@@ -93,9 +114,11 @@ builder.Services.AddSwaggerGen(options => {
     });
 });
 
-builder.Services.AddAuthentication().AddJwtBearer();
 
-//builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(x => { x.Authority = "<my_authority>"; })
+//builder.Services.AddAuthentication().AddJwtBearer();
+
+
+
 
 builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
@@ -110,7 +133,7 @@ if (app.Environment.IsDevelopment())
 
 }
 
-app.UseMiddleware<ExceptionMiddleware>();
+//app.UseMiddleware<ExceptionMiddleware>();
 app.UseCors("AllowAny");
 
 app.UseHttpsRedirection();

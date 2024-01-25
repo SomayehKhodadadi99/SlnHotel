@@ -19,8 +19,9 @@ namespace Hotel.Middleware
         {
             try
             {
-                context.Response.ContentType = "application/json";
+               
                 await _next(context);
+              
             }
             catch (Exception ex)
             {

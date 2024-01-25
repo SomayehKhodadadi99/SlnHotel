@@ -15,21 +15,21 @@ namespace Hotel
         //استفاده شده است می تواند در پروگرم  با زدن کمه ی 
         //service.ConfigureIdentity() 
         //اسم متد استفاده شود
-        public static void  ConfigureIdentity(this IServiceCollection services) 
-        {
+        //public static void  ConfigureIdentity(this IServiceCollection services) 
+        //{
 
-            //این تنظیم معمولاً برای جلوگیری از ایجاد حساب کاربری با ایمیل تکراری استفاده می‌شود.
-            var builer=services.AddIdentityCore<ApiUser>(x=>x.User.RequireUniqueEmail=true);
+        //    //این تنظیم معمولاً برای جلوگیری از ایجاد حساب کاربری با ایمیل تکراری استفاده می‌شود.
+        //    var builer=services.AddIdentityCore<ApiUser>(x=>x.User.RequireUniqueEmail=true);
 
-                builer= new IdentityBuilder(builer.UserType, typeof(IdentityRole), services);
+        //        builer= new IdentityBuilder(builer.UserType, typeof(IdentityRole), services);
 
-            builer.AddEntityFrameworkStores<DataBaseContext>().AddDefaultTokenProviders();
+        //    builer.AddEntityFrameworkStores<DataBaseContext>().AddDefaultTokenProviders();
         
-        }
+        //}
 
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
         {
-            var jwtSetting = configuration.GetSection("Jwt");
+            var jwtSetting = configuration.GetSection("JwtSettings");
             // var key = Environment.GetEnvironmentVariable("KEY");
             var key = jwtSetting.GetSection("key").Value;
 

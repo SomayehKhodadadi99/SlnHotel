@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using X.PagedList;
 
 namespace Hotel.IRepository
 {
@@ -23,7 +24,7 @@ namespace Hotel.IRepository
         Task<T> Get(Expression<Func<T,bool>> expression=null,List<string> includes=null);
 
 
-
+        Task<IPagedList<T>> GetPageedList(QueryParameters queryParameters,List<string> includes = null);
 
     }
 }

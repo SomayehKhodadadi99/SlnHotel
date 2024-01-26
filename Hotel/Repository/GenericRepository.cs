@@ -1,7 +1,9 @@
 ﻿using Hotel.Data;
 using Hotel.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Linq.Expressions;
+using X.PagedList;
 
 namespace Hotel.Repository
 {
@@ -80,6 +82,22 @@ namespace Hotel.Repository
                 }
             }
             return await query.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<IPagedList<T>> GetPageedList(QueryParameters queryParameters,List<string> includes = null)
+        {
+            IQueryable<T> query = _dbSet;
+
+           
+
+            if (includes != null)
+            {
+                foreach (var item in includes)
+                {
+                    query = query.Include(item);
+                }
+            }
+            return await query.AsNoTracking().ToPagedListAsync(queryParameters.PageNumber,queryParameters.PageSize);
         }
 
         public async Task Insert(T entity)

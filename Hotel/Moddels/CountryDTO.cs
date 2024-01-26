@@ -16,9 +16,15 @@ namespace Hotel.Moddels
 
     }
 
-    public class CountryDTO:CreateCountryDTO
+    public class UpdateCountryDTO : CreateCountryDTO
+    {
+        public IList<CreateHotelDTO> Hotels { get; set; }
+    }
+
+    public class CountryDTO : CreateCountryDTO
     {
         public int Id { get; set; }
         public virtual List<HotelDTO> Hotels { get; set; }
+
     }
 }
